@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Daftar Hadir Siswa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 text-center mb-2">📚 Daftar Hadir Siswa</h1>
+            <p class="text-gray-600 text-center">Sistem Absensi Kelas Digital</p>
+            
+            <!-- Info Tanggal dan Mata Pelajaran -->
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">📅 Tanggal</label>
+                    <input type="date" id="tanggalAbsen" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">📖 Mata Pelajaran</label>
+                    <input type="text" id="mataPelajaran" placeholder="Contoh: Matematika, Bahasa Indonesia" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Kelas -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">🏫 Filter Kelas</h2>
+            <div class="flex gap-4 items-center">
+                <select id="filterKelas" onchange="filterByKelas()" 
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="">Semua Kelas</option>
+                </select>
+                <span class="text-gray-600">|</span>
+                <span class="text-sm text-gray-600">Total: <span id="totalSiswa" class="font-semibold">0</span> siswa</span>
+            </div>
+        </div>
+
+        <!-- Input Siswa Baru -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">➕ Tambah Siswa</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <input type="text" id="namaSiswa" placeholder="Nama Siswa" 
+                       class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <input type="text" id="kelasSiswa" placeholder="Kelas (contoh: X-A, XI IPA 1)" 
+                       class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <button onclick="tambahSiswa()" 
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                    Tambah
+                </button>
+            </div>
+        </div>
+
+        <!-- Daftar Siswa -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">👥 Daftar Kehadiran</h2>
+            <div id="daftarSiswa" class="space-y-3">
+                <!-- Siswa akan ditambahkan di sini -->
+            </div>
+        </div>
+
+        <!-- Rekapitulasi -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">📊 Rekapitulasi Kehadiran</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-green-600" id="countHadir">0</div>
+                    <div class="text-sm text-green-700">✅ Hadir</div>
+                </div>
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-yellow-600" id="countSakit">0</div>
+                    <div class="text-sm text-yellow-700">🤒 Sakit</div>
+                </div>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-blue-600" id="countIzin">0</div>
+                    <div class="text-sm text-blue-700">📝 Izin</div>
+                </div>
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-red-600" id="countAlfa">0</div>
+                    <div class="text-sm text-red-700">❌ Alfa</div>
+                </div>
+                <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-purple-600" id="countDispensasi">0</div>
+                    <div class="text-sm text-purple-700">📋 Dispensasi</div>
+                </div>
+                <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 text-center">
+                    <div class="text-2xl font-bold text-orange-600" id="countBolos">0</div>
+                    <div class="text-sm text-orange-700">🏃 Bolos</div>
+                </div>
+            </div>
+            
+            <!-- Tombol Export dan Backup -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <button onclick="exportData()" 
+                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm">
+                    📄 Export Laporan
+                </button>
+                <button onclick="simpanKeFile()" 
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm">
+                    💾 Simpan Data
+                </button>
+                <button onclick="document.getElementById('fileInput').click()" 
+                        class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm">
+                    📂 Muat Data
+                </button>
+                <button onclick="resetData()" 
+                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm">
+                    🔄 Reset Semua
+                </button>
+            </div>
+            
+            <!-- Hidden file input -->
+            <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="muatDariFile(event)">
+        </div>
+    </div>
+
+    <!-- Modal Keterangan Dispensasi -->
+    <div id="modalKeterangan" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">📋 Keterangan Dispensasi</h3>
+            <textarea id="inputKeterangan" placeholder="Masukkan keterangan dispensasi..." 
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-24 resize-none"></textarea>
+            <div class="flex gap-3 mt-4">
+                <button onclick="simpanKeterangan()" 
+                        class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                    Simpan
+                </button>
+                <button onclick="batalKeterangan()" 
+                        class="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let siswaList = [];
+        let idCounter = 1;
+        let currentSiswaId = null;
+
+        // Status kehadiran dengan warna dan emoji
+        const statusOptions = {
+            'Hadir': { color: 'green', emoji: '✅', bg: 'bg-green-100', text: 'text-green-800' },
+            'Sakit': { color: 'yellow', emoji: '🤒', bg: 'bg-yellow-100', text: 'text-yellow-800' },
+            'Izin': { color: 'blue', emoji: '📝', bg: 'bg-blue-100', text: 'text-blue-800' },
+            'Alfa': { color: 'red', emoji: '❌', bg: 'bg-red-100', text: 'text-red-800' },
+            'Dispensasi': { color: 'purple', emoji: '📋', bg: 'bg-purple-100', text: 'text-purple-800' },
+            'Bolos': { color: 'orange', emoji: '🏃', bg: 'bg-orange-100', text: 'text-orange-800' }
+        };
+
+        function tambahSiswa() {
+            const namaInput = document.getElementById('namaSiswa');
+            const kelasInput = document.getElementById('kelasSiswa');
+            const nama = namaInput.value.trim();
+            const kelas = kelasInput.value.trim();
+            
+            if (nama === '') {
+                alert('Mohon masukkan nama siswa!');
+                return;
+            }
+            
+            if (kelas === '') {
+                alert('Mohon masukkan kelas siswa!');
+                return;
+            }
+
+            const siswa = {
+                id: idCounter++,
+                nama: nama,
+                kelas: kelas,
+                status: 'Hadir',
+                keterangan: ''
+            };
+
+            siswaList.push(siswa);
+            namaInput.value = '';
+            kelasInput.value = '';
+            
+            updateKelasOptions();
+            renderDaftarSiswa();
+            updateRekapitulasi();
+            simpanKeLocalStorage();
+        }
+
+        function simpanKeLocalStorage() {
+            try {
+                const dataBackup = {
+                    tanggal: document.getElementById('tanggalAbsen').value,
+                    mataPelajaran: document.getElementById('mataPelajaran').value,
+                    siswaList: siswaList,
+                    idCounter: idCounter,
+                    timestamp: new Date().toISOString()
+                };
+                localStorage.setItem('daftarHadirSiswa', JSON.stringify(dataBackup));
+            } catch (error) {
+                console.log('Gagal menyimpan ke localStorage:', error);
+            }
+        }
+
+        function muatDariLocalStorage() {
+            try {
+                const dataStr = localStorage.getItem('daftarHadirSiswa');
+                if (dataStr) {
+                    const dataBackup = JSON.parse(dataStr);
+                    
+                    siswaList = dataBackup.siswaList || [];
+                    idCounter = dataBackup.idCounter || 1;
+                    
+                    if (dataBackup.tanggal) {
+                        document.getElementById('tanggalAbsen').value = dataBackup.tanggal;
+                    }
+                    if (dataBackup.mataPelajaran) {
+                        document.getElementById('mataPelajaran').value = dataBackup.mataPelajaran;
+                    }
+                    
+                    return true;
+                }
+            } catch (error) {
+                console.log('Gagal memuat dari localStorage:', error);
+            }
+            return false;
+        }
+
+        function updateKelasOptions() {
+            const filterSelect = document.getElementById('filterKelas');
+            const kelasSet = new Set(siswaList.map(siswa => siswa.kelas));
+            const currentValue = filterSelect.value;
+            
+            filterSelect.innerHTML = '<option value="">Semua Kelas</option>';
+            
+            Array.from(kelasSet).sort().forEach(kelas => {
+                const option = document.createElement('option');
+                option.value = kelas;
+                option.textContent = kelas;
+                filterSelect.appendChild(option);
+            });
+            
+            filterSelect.value = currentValue;
+        }
+
+        function filterByKelas() {
+            renderDaftarSiswa();
+            updateRekapitulasi();
+        }
+
+        function getFilteredSiswa() {
+            const filterKelas = document.getElementById('filterKelas').value;
+            if (filterKelas === '') {
+                return siswaList;
+            }
+            return siswaList.filter(siswa => siswa.kelas === filterKelas);
+        }
+
+        function renderDaftarSiswa() {
+            const container = document.getElementById('daftarSiswa');
+            const filteredSiswa = getFilteredSiswa();
+            
+            // Update total siswa
+            document.getElementById('totalSiswa').textContent = filteredSiswa.length;
+            
+            if (filteredSiswa.length === 0) {
+                const filterKelas = document.getElementById('filterKelas').value;
+                const message = filterKelas ? 
+                    `Tidak ada siswa di kelas ${filterKelas}` : 
+                    'Belum ada siswa yang ditambahkan';
+                container.innerHTML = `<p class="text-gray-500 text-center py-8">${message}</p>`;
+                return;
+            }
+
+            container.innerHTML = filteredSiswa.map(siswa => `
+                <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold">
+                            ${siswa.nama.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                            <span class="font-medium text-gray-800">${siswa.nama}</span>
+                            <div class="text-sm text-gray-500">📚 ${siswa.kelas}</div>
+                            ${siswa.status === 'Dispensasi' && siswa.keterangan ? 
+                                `<div class="text-xs text-purple-600 mt-1">💬 ${siswa.keterangan}</div>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <span class="px-3 py-1 rounded-full text-sm font-medium ${statusOptions[siswa.status].bg} ${statusOptions[siswa.status].text}">
+                            ${statusOptions[siswa.status].emoji} ${siswa.status}
+                        </span>
+                        
+                        <select onchange="ubahStatus(${siswa.id}, this.value)" 
+                                class="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+                            ${Object.keys(statusOptions).map(status => 
+                                `<option value="${status}" ${siswa.status === status ? 'selected' : ''}>${statusOptions[status].emoji} ${status}</option>`
+                            ).join('')}
+                        </select>
+                        
+                        <button onclick="hapusSiswa(${siswa.id})" 
+                                class="text-red-500 hover:text-red-700 p-1 rounded transition-colors">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function ubahStatus(id, status) {
+            const siswa = siswaList.find(s => s.id === id);
+            if (siswa) {
+                if (status === 'Dispensasi') {
+                    // Buka modal untuk keterangan
+                    currentSiswaId = id;
+                    document.getElementById('inputKeterangan').value = siswa.keterangan || '';
+                    document.getElementById('modalKeterangan').classList.remove('hidden');
+                    document.getElementById('modalKeterangan').classList.add('flex');
+                    document.getElementById('inputKeterangan').focus();
+                } else {
+                    siswa.status = status;
+                    siswa.keterangan = ''; // Reset keterangan jika bukan dispensasi
+                    renderDaftarSiswa();
+                    updateRekapitulasi();
+                    simpanKeLocalStorage();
+                }
+            }
+        }
+
+        function simpanKeterangan() {
+            const siswa = siswaList.find(s => s.id === currentSiswaId);
+            const keterangan = document.getElementById('inputKeterangan').value.trim();
+            
+            if (siswa) {
+                siswa.status = 'Dispensasi';
+                siswa.keterangan = keterangan;
+                renderDaftarSiswa();
+                updateRekapitulasi();
+                simpanKeLocalStorage();
+            }
+            
+            tutupModal();
+        }
+
+        function batalKeterangan() {
+            // Reset dropdown ke status sebelumnya
+            const siswa = siswaList.find(s => s.id === currentSiswaId);
+            if (siswa) {
+                const dropdown = document.querySelector(`select[onchange="ubahStatus(${currentSiswaId}, this.value)"]`);
+                if (dropdown) {
+                    dropdown.value = siswa.status;
+                }
+            }
+            tutupModal();
+        }
+
+        function tutupModal() {
+            document.getElementById('modalKeterangan').classList.add('hidden');
+            document.getElementById('modalKeterangan').classList.remove('flex');
+            currentSiswaId = null;
+        }
+
+        function hapusSiswa(id) {
+            if (confirm('Yakin ingin menghapus siswa ini?')) {
+                siswaList = siswaList.filter(s => s.id !== id);
+                updateKelasOptions();
+                renderDaftarSiswa();
+                updateRekapitulasi();
+                simpanKeLocalStorage();
+            }
+        }
+
+        function updateRekapitulasi() {
+            const counts = {
+                'Hadir': 0,
+                'Sakit': 0,
+                'Izin': 0,
+                'Alfa': 0,
+                'Dispensasi': 0,
+                'Bolos': 0
+            };
+
+            const filteredSiswa = getFilteredSiswa();
+            filteredSiswa.forEach(siswa => {
+                counts[siswa.status]++;
+            });
+
+            Object.keys(counts).forEach(status => {
+                const element = document.getElementById(`count${status}`);
+                if (element) {
+                    element.textContent = counts[status];
+                }
+            });
+        }
+
+        function exportData() {
+            const filteredSiswa = getFilteredSiswa();
+            if (filteredSiswa.length === 0) {
+                alert('Tidak ada data untuk diekspor!');
+                return;
+            }
+
+            const tanggalAbsen = document.getElementById('tanggalAbsen').value || new Date().toLocaleDateString('id-ID');
+            const mataPelajaran = document.getElementById('mataPelajaran').value || 'Tidak disebutkan';
+            const filterKelas = document.getElementById('filterKelas').value;
+            const kelasInfo = filterKelas ? ` - Kelas ${filterKelas}` : ' - Semua Kelas';
+            
+            let exportText = `LAPORAN KEHADIRAN SISWA${kelasInfo}\n`;
+            exportText += `Tanggal: ${tanggalAbsen}\n`;
+            exportText += `Mata Pelajaran: ${mataPelajaran}\n\n`;
+            
+            exportText += `DAFTAR KEHADIRAN:\n`;
+            exportText += `${'='.repeat(80)}\n`;
+            
+            filteredSiswa.forEach((siswa, index) => {
+                let keteranganText = '';
+                if (siswa.status === 'Dispensasi' && siswa.keterangan) {
+                    keteranganText = ` (${siswa.keterangan})`;
+                }
+                exportText += `${index + 1}. ${siswa.nama.padEnd(20)} | ${siswa.kelas.padEnd(10)} | ${siswa.status}${keteranganText}\n`;
+            });
+
+            exportText += `\nREKAPITULASI:\n`;
+            exportText += `${'='.repeat(30)}\n`;
+            
+            const counts = {
+                'Hadir': 0, 'Sakit': 0, 'Izin': 0, 
+                'Alfa': 0, 'Dispensasi': 0, 'Bolos': 0
+            };
+
+            filteredSiswa.forEach(siswa => counts[siswa.status]++);
+            
+            Object.keys(counts).forEach(status => {
+                exportText += `${status.padEnd(15)} : ${counts[status]} siswa\n`;
+            });
+
+            exportText += `\nTotal Siswa: ${filteredSiswa.length}`;
+
+            // Buat textarea untuk copy
+            const textarea = document.createElement('textarea');
+            textarea.value = exportText;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            alert('Data berhasil disalin ke clipboard! Anda bisa paste di aplikasi lain.');
+        }
+
+        function simpanKeFile() {
+            if (siswaList.length === 0) {
+                alert('Tidak ada data untuk disimpan!');
+                return;
+            }
+
+            const tanggalAbsen = document.getElementById('tanggalAbsen').value || new Date().toISOString().split('T')[0];
+            const mataPelajaran = document.getElementById('mataPelajaran').value || 'Tidak disebutkan';
+            
+            const dataBackup = {
+                tanggal: tanggalAbsen,
+                mataPelajaran: mataPelajaran,
+                siswaList: siswaList,
+                idCounter: idCounter,
+                timestamp: new Date().toISOString()
+            };
+
+            const dataStr = JSON.stringify(dataBackup, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `daftar-hadir-${tanggalAbsen}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            alert('Data berhasil disimpan! File akan didownload otomatis.');
+        }
+
+        function muatDariFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const dataBackup = JSON.parse(e.target.result);
+                    
+                    // Validasi struktur data
+                    if (!dataBackup.siswaList || !Array.isArray(dataBackup.siswaList)) {
+                        throw new Error('Format file tidak valid');
+                    }
+
+                    // Konfirmasi sebelum memuat
+                    const konfirmasi = confirm(
+                        `Muat data dari file?\n\n` +
+                        `Tanggal: ${dataBackup.tanggal || 'Tidak diketahui'}\n` +
+                        `Mata Pelajaran: ${dataBackup.mataPelajaran || 'Tidak diketahui'}\n` +
+                        `Jumlah Siswa: ${dataBackup.siswaList.length}\n\n` +
+                        `Data saat ini akan diganti!`
+                    );
+
+                    if (konfirmasi) {
+                        // Muat data
+                        siswaList = dataBackup.siswaList;
+                        idCounter = dataBackup.idCounter || (Math.max(...siswaList.map(s => s.id)) + 1);
+                        
+                        // Set tanggal dan mata pelajaran
+                        if (dataBackup.tanggal) {
+                            document.getElementById('tanggalAbsen').value = dataBackup.tanggal;
+                        }
+                        if (dataBackup.mataPelajaran) {
+                            document.getElementById('mataPelajaran').value = dataBackup.mataPelajaran;
+                        }
+
+                        // Update tampilan
+                        updateKelasOptions();
+                        renderDaftarSiswa();
+                        updateRekapitulasi();
+                        
+                        alert('Data berhasil dimuat!');
+                    }
+                } catch (error) {
+                    alert('Error: File tidak valid atau rusak!\n' + error.message);
+                }
+            };
+            reader.readAsText(file);
+            
+            // Reset input file
+            event.target.value = '';
+        }
+
+        function resetData() {
+            if (confirm('Yakin ingin menghapus semua data? Tindakan ini tidak dapat dibatalkan.')) {
+                siswaList = [];
+                idCounter = 1;
+                document.getElementById('tanggalAbsen').value = new Date().toISOString().split('T')[0];
+                document.getElementById('mataPelajaran').value = '';
+                updateKelasOptions();
+                renderDaftarSiswa();
+                updateRekapitulasi();
+                alert('Semua data berhasil dihapus!');
+            }
+        }
+
+        // Tambah beberapa siswa contoh saat halaman dimuat
+        window.onload = function() {
+            // Set tanggal hari ini terlebih dahulu
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('tanggalAbsen').value = today;
+            
+            // Coba muat data dari localStorage
+            const dataLoaded = muatDariLocalStorage();
+            
+            // Jika tidak ada data tersimpan, buat data contoh
+            if (!dataLoaded) {
+                const contohSiswa = [
+                    { nama: 'Ahmad Rizki', kelas: 'X-A' },
+                    { nama: 'Siti Nurhaliza', kelas: 'X-A' },
+                    { nama: 'Budi Santoso', kelas: 'X-B' },
+                    { nama: 'Dewi Lestari', kelas: 'XI IPA 1' },
+                    { nama: 'Eko Prasetyo', kelas: 'XI IPA 1' },
+                    { nama: 'Fatimah Zahra', kelas: 'XII IPS 2' }
+                ];
+                
+                contohSiswa.forEach(data => {
+                    siswaList.push({
+                        id: idCounter++,
+                        nama: data.nama,
+                        kelas: data.kelas,
+                        status: 'Hadir',
+                        keterangan: ''
+                    });
+                });
+                
+                simpanKeLocalStorage();
+            }
+            
+            updateKelasOptions();
+            renderDaftarSiswa();
+            updateRekapitulasi();
+        };
+
+        // Enter key untuk tambah siswa
+        document.getElementById('namaSiswa').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('kelasSiswa').focus();
+            }
+        });
+        
+        document.getElementById('kelasSiswa').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                tambahSiswa();
+            }
+        });
+
+        // Event listener untuk modal keterangan
+        document.getElementById('inputKeterangan').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                simpanKeterangan();
+            }
+        });
+
+        // Tutup modal jika klik di luar area modal
+        document.getElementById('modalKeterangan').addEventListener('click', function(e) {
+            if (e.target === this) {
+                batalKeterangan();
+            }
+        });
+
+        // Auto-save ketika tanggal atau mata pelajaran berubah
+        document.getElementById('tanggalAbsen').addEventListener('change', simpanKeLocalStorage);
+        document.getElementById('mataPelajaran').addEventListener('input', function() {
+            clearTimeout(this.saveTimeout);
+            this.saveTimeout = setTimeout(simpanKeLocalStorage, 1000); // Delay 1 detik
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96aaf5e720799e3e',t:'MTc1NDQ0NTgzNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
